@@ -22,6 +22,8 @@ def haal_keuring_data(kentekens):
     df = pd.DataFrame(records)
     df["vervaldatum_keuring_dt"] = pd.to_datetime(df["vervaldatum_keuring_dt"], errors='coerce')
     df["dagen_tot_verval"] = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days.round()
+
+    # Zet opmerking "N.V.T." en houd dagen als getal
     df["opmerking"] = df["dagen_tot_verval"].isna().map(lambda x: "N.V.T." if x else "")
     df["dagen_tot_verval"] = df["dagen_tot_verval"].fillna(0).astype(int)
 
@@ -33,34 +35,38 @@ def haal_keuring_data(kentekens):
 def schrijf_excel(df):
     output = BytesIO()
     writer = pd.ExcelWriter(output, engine="xlsxwriter", datetime_format="yyyy-mm-dd")
+    
+    # Zorg dat kolom numeriek blijft
+    df["dagen_tot_verval"] = pd.to_numeric(df["dagen_tot_verval"], errors="coerce")
     df.to_excel(writer, index=False, sheet_name="Keuringen")
+
     workbook = writer.book
     worksheet = writer.sheets["Keuringen"]
     col = df.columns.get_loc("dagen_tot_verval")
+
+    # Formaatkolom forceren als getal
+    worksheet.set_column(col, col, 15, workbook.add_format({'num_format': '0'}))
 
     # Opmaak
     rood = workbook.add_format({"bg_color": "#FF9999"})
     oranje = workbook.add_format({"bg_color": "#FFA500"})
     groen = workbook.add_format({"bg_color": "#C6EFCE"})
+    grijs = workbook.add_format({"bg_color": "#D9D9D9"})
 
-    # Rood voor verlopen
+    # Voorwaardelijke opmaak
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": "<", "value": 0, "format": rood
     })
 
-    # Oranje < 30
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": "<", "value": 30, "format": oranje
     })
 
-    # Groen >= 30
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": ">=", "value": 30, "format": groen
     })
 
-    # Grijs op 'opmerking'-kolom voor 'N.V.T.'
     opm_col = df.columns.get_loc("opmerking")
-    grijs = workbook.add_format({"bg_color": "#D9D9D9"})
     worksheet.conditional_format(1, opm_col, len(df), opm_col, {
         "type": "text", "criteria": "containing", "value": "N.V.T.", "format": grijs
     })
