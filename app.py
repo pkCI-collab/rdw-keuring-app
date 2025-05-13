@@ -21,12 +21,12 @@ def haal_keuring_data(kentekens):
 
     df = pd.DataFrame(records)
     df["vervaldatum_keuring_dt"] = pd.to_datetime(df["vervaldatum_keuring_dt"], errors='coerce')
-    df["dagen_tot_verval"] = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days.round()
+    dagen = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days
+    dagen = dagen.apply(lambda x: int(round(x)) if pd.notna(x) else "N.V.T.")
+    df["dagen_tot_verval"] = dagen.astype(str)
 
-    # Zet duidelijke tekst voor ontbrekende datums
     df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].dt.date
     df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].fillna("geen vervaldatum")
-    df["dagen_tot_verval"] = df["dagen_tot_verval"].fillna("N.V.T.").astype(str)
 
     return df
 
@@ -72,6 +72,6 @@ if st.button("Genereer Excel"):
     if kentekens:
         df = haal_keuring_data(kentekens)
         excel_data = schrijf_excel(df)
-        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen-vervaldatums.xlsx")
+        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen.xlsx")
     else:
         st.warning("Voer eerst geldige kentekens in.")
