@@ -18,9 +18,14 @@ def haal_keuring_data(kentekens):
         except:
             data = {"kenteken": kenteken, "vervaldatum_keuring_dt": None}
         records.append(data)
+
     df = pd.DataFrame(records)
     df["vervaldatum_keuring_dt"] = pd.to_datetime(df["vervaldatum_keuring_dt"], errors='coerce')
-    df["dagen_tot_verval"] = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days
+
+    df["dagen_tot_verval"] = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days.round().astype("Int64")
+    df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].dt.date.astype("string")
+    df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].replace("NaT", "geen vervaldatum")
+    df["dagen_tot_verval"] = df["dagen_tot_verval"].astype("string").replace("<NA>", "onbekend")
     return df
 
 def schrijf_excel(df):
@@ -33,11 +38,22 @@ def schrijf_excel(df):
 
     oranje = workbook.add_format({"bg_color": "#FFA500"})
     groen = workbook.add_format({"bg_color": "#C6EFCE"})
+    grijs = workbook.add_format({"bg_color": "#D9D9D9"})
 
+    # Grijs voor "onbekend"
     worksheet.conditional_format(1, col, len(df), col, {
-        "type": "cell", "criteria": "<", "value": 30, "format": oranje})
+        "type": "text", "criteria": "containing", "value": "onbekend", "format": grijs
+    })
+
+    # Oranje voor < 30
     worksheet.conditional_format(1, col, len(df), col, {
-        "type": "cell", "criteria": ">=", "value": 30, "format": groen})
+        "type": "cell", "criteria": "<", "value": 30, "format": oranje
+    })
+
+    # Groen voor >= 30
+    worksheet.conditional_format(1, col, len(df), col, {
+        "type": "cell", "criteria": ">=", "value": 30, "format": groen
+    })
 
     writer.close()
     output.seek(0)
