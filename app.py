@@ -48,17 +48,17 @@ def schrijf_excel(df):
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "text", "criteria": "containing", "value": "N.V.T.", "format": grijs
     })
-
-    # Rood voor verlopen keuring (negatief)
-    worksheet.conditional_format(1, col, len(df), col, {
-        "type": "cell", "criteria": "<", "value": 0, "format": rood
-    })
     
     # Oranje < 30
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": "<", "value": 30, "format": oranje
     })
 
+    # Rood voor verlopen keuring (negatief)
+    worksheet.conditional_format(1, col, len(df), col, {
+        "type": "cell", "criteria": "<", "value": 0, "format": rood
+    })
+    
     # Groen >= 30
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": ">=", "value": 30, "format": groen
