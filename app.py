@@ -39,8 +39,8 @@ def schrijf_excel(df):
     col = df.columns.get_loc("dagen_tot_verval")
 
     # Opmaak
-    rood = workbook.add_format({"bg_color": "#FF9999"})
     oranje = workbook.add_format({"bg_color": "#FFA500"})
+    rood = workbook.add_format({"bg_color": "#FF9999"})
     groen = workbook.add_format({"bg_color": "#C6EFCE"})
     grijs = workbook.add_format({"bg_color": "#D9D9D9"})
 
@@ -78,6 +78,6 @@ if st.button("Genereer Excel"):
     if kentekens:
         df = haal_keuring_data(kentekens)
         excel_data = schrijf_excel(df)
-        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen_vervaldatum_AP.xlsx")
+        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen_vervaldatum_APK.xlsx")
     else:
         st.warning("Voer eerst geldige kentekens in.")
