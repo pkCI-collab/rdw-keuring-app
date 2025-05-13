@@ -39,6 +39,7 @@ def schrijf_excel(df):
     col = df.columns.get_loc("dagen_tot_verval")
 
     # Opmaak
+    rood = workbook.add_format({"bg_color": "#FF9999"})
     oranje = workbook.add_format({"bg_color": "#FFA500"})
     groen = workbook.add_format({"bg_color": "#C6EFCE"})
     grijs = workbook.add_format({"bg_color": "#D9D9D9"})
@@ -48,6 +49,11 @@ def schrijf_excel(df):
         "type": "text", "criteria": "containing", "value": "N.V.T.", "format": grijs
     })
 
+    # Rood voor verlopen keuring (negatief)
+    worksheet.conditional_format(1, col, len(df), col, {
+        "type": "cell", "criteria": "<", "value": 0, "format": rood
+    })
+    
     # Oranje < 30
     worksheet.conditional_format(1, col, len(df), col, {
         "type": "cell", "criteria": "<", "value": 30, "format": oranje
