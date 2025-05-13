@@ -72,6 +72,6 @@ if st.button("Genereer Excel"):
     if kentekens:
         df = haal_keuring_data(kentekens)
         excel_data = schrijf_excel(df)
-        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen.xlsx")
+        st.download_button("Download RDW-Keuringen.xlsx", excel_data, file_name="RDW-Keuringen_vervaldatum_AP.xlsx")
     else:
         st.warning("Voer eerst geldige kentekens in.")
