@@ -22,8 +22,8 @@ def haal_keuring_data(kentekens):
     df = pd.DataFrame(records)
     df["vervaldatum_keuring_dt"] = pd.to_datetime(df["vervaldatum_keuring_dt"], errors='coerce')
     dagen = (df["vervaldatum_keuring_dt"] - pd.Timestamp.today()).dt.days
-    dagen = dagen.apply(lambda x: int(round(x)) if pd.notna(x) else "N.V.T.")
-    df["dagen_tot_verval"] = dagen.astype(str)
+    df["dagen_tot_verval"] = dagen
+    df.loc[df["dagen_tot_verval"].isna(), "dagen_tot_verval"] = "N.V.T."
 
     df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].dt.date
     df["vervaldatum_keuring_dt"] = df["vervaldatum_keuring_dt"].fillna("geen vervaldatum")
